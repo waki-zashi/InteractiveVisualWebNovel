@@ -284,26 +284,34 @@ body {
 /* Кнопка — теперь внутри frame, внизу */
 #ending-overlay #ending-return-btn {
   position: absolute;
-  bottom: 12%;                    /* расстояние от низа frame (можно 3–8%) */
+  bottom: 12%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(1);   /* ← scale(1) явно указан */
+  transform-origin: center;               /* ← фиксируем центр трансформации */
   margin: 0;
   padding: 0;
   border: none;
   background: transparent;
   cursor: pointer;
   z-index: 2;
+  transition: transform 0.15s ease, opacity 0.2s ease;
 }
 
 #ending-overlay #ending-return-btn img {
   display: block;
   width: auto;
-  height: 90px;                  /* подбери под размер своей кнопки */
-  max-width: 80vw;               /* чтобы не вылезала за пределы на мобильных */
+  height: 90px;
+  max-width: 80vw;
 }
 
 #ending-overlay #ending-return-btn:hover {
+  transform: translateX(-50%) scale(1.1);   /* ← scale применяется ПОВЕРХ translate */
   opacity: 0.9;
+}
+
+/* Опционально: можно добавить лёгкое свечение или тень при hover */
+#ending-overlay #ending-return-btn:hover img {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
 }
 
 #item-overlay {
@@ -452,15 +460,16 @@ body {
 }
 
 #sleep-instruction {
-  position: fixed;               /* ← меняем на fixed, чтобы не зависеть от overlay */
-  bottom: 60px;                  /* чуть выше, чтобы не упиралась в край */
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
+  bottom: 60px;                    /* расстояние от нижнего края экрана — подбери 40–80px */
+  left: 0;                         /* ← убираем left:50% */
+  right: 0;                        /* ← растягиваем на всю ширину экрана */
+  text-align: center;              /* ← центрируем текст внутри блока */
   font-size: 22px;
   font-weight: bold;
   color: #ffffff;
   text-shadow: 0 0 12px #000, 0 0 20px #000;
-  z-index: 60;                   /* выше всех элементов игры (darkness=0, eyelids ~10) */
+  z-index: 60;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -493,4 +502,143 @@ body {
   to {
     transform: translate(-50%, -50%) rotate(360deg);
   }
+}
+
+/* Анимация пульсации при нажатии пробела */
+@keyframes pulse-text {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }   /* чуть больше, но не слишком агрессивно */
+  100% { transform: scale(1); }
+}
+
+#sleep-instruction.pulse {
+  animation: pulse-text 0.4s ease-out forwards;
+}
+
+/* ================= DOGS GAME ================= */
+
+#dogs-game-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 55;
+  pointer-events: none;
+}
+
+#dogs-game-overlay.active {
+  display: block;
+}
+
+.dog-zone {
+  position: absolute;
+  width: 350px;    /* РЕГУЛИРУЙ РАЗМЕР */
+  height: 350px;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Первая собака */
+.dog-zone[data-id="0"] {
+  top: 220px;
+  left: 220px;
+}
+
+/* Вторая собака */
+.dog-zone[data-id="1"] {
+  top: 260px;
+  left: 650px;
+}
+
+/* Третья собака */
+.dog-zone[data-id="2"] {
+  top: 180px;
+  left: 1150px;
+}
+
+.dog-rage {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(255, 0, 0, 0.35);  /* ← регулируешь прозрачность */
+  transform: scale(1);
+  transform-origin: center;
+  transition: transform 0.1s linear;
+}
+
+/* ---- ПРОИГРЫШ ---- */
+
+#dogs-fail {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+#dogs-buttons {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  gap: 60px;
+  z-index: 70;
+  pointer-events: auto;
+}
+
+#dogs-restart-btn,
+#dogs-skip-btn {
+  width: 300px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+#dogs-restart-btn:hover,
+#dogs-skip-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Надпись для dogs-игры — полностью аналогично sleep */
+#dogs-instruction {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 0 12px #000, 0 0 20px #000;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  white-space: nowrap;
+}
+
+/* Пульсация при клике (такая же, как в sleep) */
+@keyframes pulse-text {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+#dogs-instruction.pulse {
+  animation: pulse-text 0.4s ease-out forwards;
+}
+
+/* Анимация hover на кнопках dogs (аналогично sleep) */
+#dogs-restart-btn,
+#dogs-skip-btn {
+  width: 300px;                  /* можно уменьшить до 240–280px, если хочешь меньше */
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+#dogs-restart-btn:hover,
+#dogs-skip-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.9;
 }

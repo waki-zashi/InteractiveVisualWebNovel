@@ -137,15 +137,36 @@ function renderScene(sceneId, fromHistory = false) {
   }
 
   if (scene.minigame === "sleep" && !state.sleepGameCompleted) {
-    // Скрываем обычные текстовые боксы, чтобы они не мешали
+    // Скрываем боксы текста
     const textBox = document.getElementById("text-box");
     const dialogueBox = document.getElementById("dialogue-box");
     if (textBox) textBox.classList.remove("visible");
     if (dialogueBox) dialogueBox.classList.remove("visible");
 
-    startSleepGame();
-    return;  // ← важно! не показываем текст, пока игра не закончена
+    // Ждём загрузки фона
+    const bgImage = new Image();
+    bgImage.src = scene.background;
+    bgImage.onload = () => {
+      // Фон загрузился → запускаем игру
+      startSleepGame();
+    };
+    bgImage.onerror = () => {
+      // Если ошибка загрузки — запускаем всё равно, чтобы не зависло
+      startSleepGame();
+    };
+
+    // Показываем fade-out, чтобы было красиво
+    fadeEl.classList.add("active");
+    setTimeout(() => fadeEl.classList.remove("active"), 50);
+
+    return;
   }
+
+  if (scene.minigame === "dogs" && !state.dogsGameCompleted) {
+    startDogsGame();
+    return;
+  }
+
 
   if (textBox) {
     textBox.style.display = "block";
@@ -184,6 +205,7 @@ function skipIntro() {
 function nextStep() {
   if (state.isTransitioning) return;
   if (state.sleepGame.active) return;
+  if (state.dogsGame.active) return;
 
   const scene = scenes[state.currentScene];
   if (!scene) return;
@@ -584,6 +606,102 @@ function closeSleepGame() {
   document.getElementById("sleep-fail").style.display = "none";
 }
 
+function startDogsGame() {
+  const game = state.dogsGame;
+
+  game.active = true;
+  game.elapsed = 0;
+
+  game.dogs.forEach(d => d.rage = 0);
+
+  const overlay = document.getElementById("dogs-game-overlay");
+  overlay.style.display = "block";
+
+  // Показываем надпись
+  const instruction = document.getElementById("dogs-instruction");
+  instruction.style.opacity = "1";
+  instruction.style.pointerEvents = "none";
+
+  // Скрываем кнопки и fail на старте
+  document.getElementById("dogs-buttons").style.display = "none";
+  document.getElementById("dogs-fail").style.display = "none";
+
+  loopDogsGame();
+}
+
+function loopDogsGame() {
+  const game = state.dogsGame;
+  if (!game.active) return;
+
+  game.elapsed += 16;
+
+  game.dogs.forEach(dog => {
+    dog.rage += game.ragePerSecond * 0.016;
+  });
+
+  updateDogsVisuals();
+
+  // проигрыш если кто-то достиг максимума
+  if (game.dogs.some(d => d.rage >= game.maxRage)) {
+    loseDogsGame();
+    return;
+  }
+
+  // победа по таймеру
+  if (game.elapsed >= game.duration) {
+    winDogsGame();
+    return;
+  }
+
+  game.raf = requestAnimationFrame(loopDogsGame);
+}
+
+function updateDogsVisuals() {
+  document.querySelectorAll(".dog-zone").forEach((zone, index) => {
+    const circle = zone.querySelector(".dog-rage");
+    const rage = state.dogsGame.dogs[index].rage;
+
+    const scale = Math.min(rage / state.dogsGame.maxRage, 1);
+    circle.style.transform = `scale(${scale})`;
+    circle.style.opacity = 0.3 + scale * 0.4;
+  });
+}
+
+function loseDogsGame() {
+  const game = state.dogsGame;
+  game.active = false;
+  cancelAnimationFrame(game.raf);
+
+  game.attempts++;
+
+  document.getElementById("dogs-fail").style.display = "flex";
+  document.getElementById("dogs-buttons").style.display = "flex";
+
+  // Скрываем надпись при проигрыше
+  document.getElementById("dogs-instruction").style.opacity = "0";
+}
+
+function winDogsGame() {
+  const game = state.dogsGame;
+  game.active = false;
+  cancelAnimationFrame(game.raf);
+
+  state.dogsGameCompleted = true;
+  closeDogsGame();
+  nextStep();
+}
+
+function closeDogsGame() {
+  const overlay = document.getElementById("dogs-game-overlay");
+  overlay.style.display = "none";
+
+  document.getElementById("dogs-fail").style.display = "none";
+  document.getElementById("dogs-buttons").style.display = "none";
+
+  // Скрываем надпись при завершении
+  document.getElementById("dogs-instruction").style.opacity = "0";
+}
+
 function renderEnding(scene) {
   backgroundEl.style.backgroundImage = `url(${scene.background})`;
   backgroundEl.style.backgroundColor = "";
@@ -661,11 +779,19 @@ document.addEventListener("keydown", (e) => {
   if (state.sleepGame.active) {
     if (e.key === " ") {
       e.preventDefault();
+
+      // Уменьшаем темноту
       state.sleepGame.darkness = Math.max(0, state.sleepGame.darkness - 0.2);
+
+      // Пульсация надписи
+      const instruction = document.getElementById("sleep-instruction");
+      instruction.classList.remove("pulse"); // сбрасываем, если анимация уже шла
+      void instruction.offsetWidth;          // ← трюк для перезапуска анимации (force reflow)
+      instruction.classList.add("pulse");
+
       return;
     }
-    // другие клавиши можно блокировать тоже
-    return; // блокируем все остальные клавиши во время игры
+    return; // блокируем остальные клавиши
   }
 
   const endingOverlay = document.getElementById("ending-overlay");
@@ -688,16 +814,43 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-
 document.getElementById("sleep-restart-btn").onclick = () => {
-  document.getElementById("sleep-fail").style.display = "none";
-  startSleepGame();
-};
+  // Полностью закрываем игру
+  closeSleepGame();
 
+  // Перезапускаем мини-игру напрямую
+  transitionToScene(state.currentScene, true);
+};
 
 document.getElementById("sleep-skip-btn").onclick = () => {
   state.sleepGameCompleted = true;
   closeSleepGame();
+  nextStep();
+};
+
+document.querySelectorAll(".dog-zone").forEach((zone, index) => {
+  zone.addEventListener("click", () => {
+    if (!state.dogsGame.active) return;
+
+    const dog = state.dogsGame.dogs[index];
+    dog.rage = Math.max(0, dog.rage - state.dogsGame.clickReduce);
+
+    // Пульсация надписи при каждом клике
+    const instruction = document.getElementById("dogs-instruction");
+    instruction.classList.remove("pulse");
+    void instruction.offsetWidth;          // force reflow для перезапуска анимации
+    instruction.classList.add("pulse");
+  });
+});
+
+document.getElementById("dogs-restart-btn").onclick = () => {
+  document.getElementById("dogs-fail").style.display = "none";
+  startDogsGame();
+};
+
+document.getElementById("dogs-skip-btn").onclick = () => {
+  state.dogsGameCompleted = true;
+  closeDogsGame();
   nextStep();
 };
 

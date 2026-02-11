@@ -25,5 +25,26 @@ export const state = {
     duration: 20000,
     attempts: 0,
     raf: null
+  },
+
+  dogsGameCompleted: false,
+
+  dogsGame: {
+    active: false,
+    duration: 20000,      // ⏱ длительность игры (20 секунд)
+    elapsed: 0,
+    attempts: 0,
+
+    maxRage: 1,           // 🔺 максимум ярости (1 = 100%)
+    ragePerSecond: 0.25,  // 🔥 скорость накопления ярости
+    clickReduce: 0.35,    // 👆 сколько снимается за клик
+
+    dogs: [
+      { rage: 0 },
+      { rage: 0 },
+      { rage: 0 }
+    ],
+
+    raf: null
   }
 };
