@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Лучшее свидание</title>
+  <link rel="icon" type="image/png" href="assets/ui/falicon.png" sizes="any">
   <link rel="stylesheet" href="styles/main.css" />
 </head>
 <body>
@@ -48,12 +49,10 @@
     <div id="sleep-eyelid-top"></div>
     <div id="sleep-eyelid-bottom"></div>
 
-    <!-- Панель проигрыша теперь только фон/текст, без кнопок -->
     <div id="sleep-fail">
-      <div>Ты уснула...</div>  <!-- можно добавить текст или картинку -->
+      <div>Ты уснула...</div>
     </div>
 
-    <!-- Новый контейнер для кнопок внизу экрана -->
     <div id="sleep-buttons">
       <img src="assets/ui/restart.png" id="sleep-restart-btn" alt="Начать заново" />
       <img src="assets/ui/skip.png"   id="sleep-skip-btn"   alt="Пропустить" />
@@ -62,7 +61,7 @@
 
   <div id="dogs-game-overlay">
     <div id="dogs-instruction">Успокой собак</div>
-    
+
     <div class="dog-zone" data-id="0">
       <div class="dog-rage"></div>
     </div>
@@ -83,7 +82,17 @@
       <img src="assets/ui/restart.png" id="dogs-restart-btn" alt="Restart" />
       <img src="assets/ui/skip.png" id="dogs-skip-btn" alt="Skip" />
     </div>
+  </div>
 
+  <div id="evidence-game-overlay">
+    <div id="evidence-instruction">Осмотри улики</div>
+
+    <div id="evidence-hotspots"></div>
+
+    <div id="evidence-desc">
+      <div id="evidence-desc-text"></div>
+      <div id="evidence-desc-continue">Нажми ПРОБЕЛ, чтобы продолжить</div>
+    </div>
   </div>
 
   <div id="item-overlay">

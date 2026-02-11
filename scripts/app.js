@@ -167,6 +167,29 @@ function renderScene(sceneId, fromHistory = false) {
     return;
   }
 
+  if (scene.minigame === "evidence" && !state.evidenceGameCompleted) {
+    // Скрываем текстовые боксы
+    const textBox = document.getElementById("text-box");
+    const dialogueBox = document.getElementById("dialogue-box");
+    if (textBox) textBox.classList.remove("visible");
+    if (dialogueBox) dialogueBox.classList.remove("visible");
+
+    // Ждём загрузки фона
+    const bgImage = new Image();
+    bgImage.src = scene.background;
+    bgImage.onload = () => {
+      startEvidenceGame(scene);
+    };
+    bgImage.onerror = () => {
+      startEvidenceGame(scene);
+    };
+
+    fadeEl.classList.add("active");
+    setTimeout(() => fadeEl.classList.remove("active"), 50);
+
+    return;
+  }
+
 
   if (textBox) {
     textBox.style.display = "block";
@@ -702,6 +725,85 @@ function closeDogsGame() {
   document.getElementById("dogs-instruction").style.opacity = "0";
 }
 
+function startEvidenceGame(scene) {
+  const game = state.evidenceGame;
+  game.active = true;
+  game.hotspotsFound = 0;
+  game.currentDesc = null;
+
+  const overlay = document.getElementById("evidence-game-overlay");
+  overlay.style.display = "block";
+  overlay.classList.add("active");
+
+  const instruction = document.getElementById("evidence-instruction");
+  instruction.style.opacity = "1";
+
+  const hotspotsContainer = document.getElementById("evidence-hotspots");
+  hotspotsContainer.innerHTML = ""; // очистка
+
+  // Пример 5 улик — координаты и описания задавай в сцене или здесь
+  const hotspots = scene.evidenceHotspots || [
+    { x: "25%", y: "40%", desc: "Выбитая калитка. Её выбили ногой одним точным ударом." },
+    { x: "45%", y: "55%", desc: "Множественные грязные следы. Группа преступников шла от посадок." },
+    { x: "60%", y: "35%", desc: "Сломанные ветви и листья с кровью. Жертву убили в зарослях." },
+    { x: "70%", y: "65%", desc: "Кошелёк и телефон у калитки. Убийцы поняли, что убили не того." },
+    { x: "85%", y: "50%", desc: "Приоткрытая дверь гаража. Рядом лежит балаклава." }
+  ];
+
+  hotspots.forEach((spot, index) => {
+    const el = document.createElement("div");
+    el.className = "evidence-hotspot";
+    el.style.left = spot.x;
+    el.style.top = spot.y;
+    el.dataset.index = index;
+
+    el.onclick = () => {
+      showEvidenceDesc(spot.desc, index);
+    };
+
+    hotspotsContainer.appendChild(el);
+  });
+
+  // Показываем надпись
+  instruction.style.opacity = "1";
+}
+
+function showEvidenceDesc(text, index) {
+  const descEl = document.getElementById("evidence-desc");
+  const textEl = document.getElementById("evidence-desc-text");
+
+  textEl.textContent = text;
+  descEl.style.display = "flex";
+
+  // Удаляем круг
+  const hotspot = document.querySelector(`.evidence-hotspot[data-index="${index}"]`);
+  if (hotspot) hotspot.remove();
+
+  state.evidenceGame.hotspotsFound++;
+  state.evidenceGame.currentDesc = text; // запоминаем, что показываем описание
+
+  // НЕ вызываем win сразу, даже если это последняя
+}
+
+function winEvidenceGame() {
+  const game = state.evidenceGame;
+  game.active = false;
+
+  closeEvidenceGame();
+  nextStep(); // показываем обычный текст сцены
+}
+
+function closeEvidenceGame() {
+  const overlay = document.getElementById("evidence-game-overlay");
+  overlay.style.display = "none";
+  overlay.classList.remove("active");
+
+  document.getElementById("evidence-desc").style.display = "none";
+  document.getElementById("evidence-instruction").style.opacity = "0";
+
+  state.evidenceGameCompleted = true;
+}
+
 function renderEnding(scene) {
   backgroundEl.style.backgroundImage = `url(${scene.background})`;
   backgroundEl.style.backgroundColor = "";
@@ -792,6 +894,23 @@ document.addEventListener("keydown", (e) => {
       return;
     }
     return; // блокируем остальные клавиши
+  }
+
+  if (state.evidenceGame.active && document.getElementById("evidence-desc").style.display === "flex") {
+    if (e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+
+      const descEl = document.getElementById("evidence-desc");
+      descEl.style.display = "none";
+
+      // Если это была последняя улика — завершаем игру
+      if (state.evidenceGame.hotspotsFound >= 5) {
+        winEvidenceGame();
+      }
+
+      return;
+    }
+    return; // блокируем другие клавиши во время описания
   }
 
   const endingOverlay = document.getElementById("ending-overlay");

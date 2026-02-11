@@ -28,16 +28,15 @@ export const state = {
   },
 
   dogsGameCompleted: false,
-
   dogsGame: {
     active: false,
-    duration: 20000,      // ⏱ длительность игры (20 секунд)
+    duration: 20000,
     elapsed: 0,
     attempts: 0,
 
-    maxRage: 1,           // 🔺 максимум ярости (1 = 100%)
-    ragePerSecond: 0.25,  // 🔥 скорость накопления ярости
-    clickReduce: 0.35,    // 👆 сколько снимается за клик
+    maxRage: 1,
+    ragePerSecond: 0.25,
+    clickReduce: 0.35,
 
     dogs: [
       { rage: 0 },
@@ -45,6 +44,14 @@ export const state = {
       { rage: 0 }
     ],
 
+    raf: null
+  },
+
+  evidenceGameCompleted: false,
+  evidenceGame: {
+    active: false,
+    hotspotsFound: 0,
+    currentDesc: null,
     raf: null
   }
 };

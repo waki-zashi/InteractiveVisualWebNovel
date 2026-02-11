@@ -155,10 +155,8 @@ body {
   position: fixed;
   bottom: 0;
   right: 320px;
-  /* left: 50%;
-  transform: translateX(-50%); */
-  width: 70%;                    /* ← основной размер бокса (как у #text-box) */
-  max-width: 1100px;             /* опционально — чтобы на большом экране не растягивался слишком сильно */
+  width: 70%;
+  max-width: 1100px;
   z-index: 12;
   pointer-events: none;
   opacity: 0;
@@ -171,7 +169,6 @@ body {
   pointer-events: auto;
 }
 
-/* Фон бокса — разный для narration и dialogue */
 #text-box-bg {
   display: none;
   width: 100%;
@@ -194,17 +191,16 @@ body {
   z-index: 10;
 }
 
-/* Сам текст — делаем одинаковым */
 #text {
   position: absolute;
-  top: 80px;                     /* ← расстояние от верха рамки — ключевое */
+  top: 80px;
   right: 50px;
-  left: 60px;                    /* ← отступ слева */
+  left: 60px;
   
   transform: none;
   
   width: auto;
-  max-width: 85%;                /* ← ограничивает ширину текста внутри рамки */
+  max-width: 85%;
   
   padding: 0;
   margin: 0;
@@ -214,14 +210,14 @@ body {
 
 #dialogue-text {
   position: absolute;
-  top: 80px;                     /* ← расстояние от верха рамки — ключевое */
+  top: 80px;
   right: 60px;
-  left: 60px;                    /* ← отступ слева */
+  left: 60px; 
   
   transform: none;
   
   width: auto;
-  max-width: 80%;                /* ← ограничивает ширину текста внутри рамки */
+  max-width: 80%;
   
   padding: 0;
   margin: 0;
@@ -236,10 +232,9 @@ body {
   font-family: "Georgia", serif;
   font-size: 22px;
   line-height: 1.2;
-  color: #8E5840;                /* одинаковый цвет для обоих */
+  color: #8E5840;
 }
 
-/* Ending overlay */
 #ending-overlay {
   position: fixed;
   inset: 0;
@@ -263,17 +258,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;     /* ← ключевой момент — контент прижимается к низу */
-  height: 85vh;                  /* ← контролируемая высота контейнера */
+  justify-content: flex-end;
+  height: 85vh;
   width: 90vw;
-  max-width: 60%;             /* ограничение, чтобы не растягивался слишком сильно */
+  max-width: 60%;
   max-height: 60%;
 }
 
-/* Само изображение */
 #ending-overlay #ending-frame-image {
-  max-width: 100%;               /* занимает всю ширину контейнера */
-  max-height: 90%;               /* оставляет ~10% высоты снизу под кнопку */
+  max-width: 100%;
+  max-height: 90%;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -281,13 +275,12 @@ body {
   filter: drop-shadow(0 6px 7px rgba(0, 0, 0, 0.7));
 }
 
-/* Кнопка — теперь внутри frame, внизу */
 #ending-overlay #ending-return-btn {
   position: absolute;
   bottom: 12%;
   left: 50%;
-  transform: translateX(-50%) scale(1);   /* ← scale(1) явно указан */
-  transform-origin: center;               /* ← фиксируем центр трансформации */
+  transform: translateX(-50%) scale(1);
+  transform-origin: center;
   margin: 0;
   padding: 0;
   border: none;
@@ -305,11 +298,10 @@ body {
 }
 
 #ending-overlay #ending-return-btn:hover {
-  transform: translateX(-50%) scale(1.1);   /* ← scale применяется ПОВЕРХ translate */
+  transform: translateX(-50%) scale(1.1);
   opacity: 0.9;
 }
 
-/* Опционально: можно добавить лёгкое свечение или тень при hover */
 #ending-overlay #ending-return-btn:hover img {
   filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
 }
@@ -341,30 +333,27 @@ body {
   pointer-events: none;
 }
 
-/* АУРА */
 .item-aura {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 800px;          /* НАСТРАИВАЕШЬ */
+  width: 800px;
   height: 800px;
   transform: translate(-50%, -50%);
   animation: aura-rotate 8s linear infinite;
   z-index: 1;
 }
 
-/* ПРЕДМЕТ */
 #item-image {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 400px;          /* размер предмета */
+  width: 400px;
   transform: translate(-50%, -50%);
   image-rendering: pixelated;
   z-index: 2;
 }
 
-/* ЗВЁЗДЫ */
 #item-stars {
   position: absolute;
   top: 50%;
@@ -384,7 +373,7 @@ body {
 }
 
 #sleep-game-overlay > * {
-  pointer-events: auto;           /* ← ВСЕ дети оверлея теперь кликабельны */
+  pointer-events: auto;
 }
 
 #sleep-darkness,
@@ -398,25 +387,23 @@ body {
 #sleep-restart-btn,
 #sleep-skip-btn {
   pointer-events: auto;
-  cursor: pointer;                /* ← курсор теперь будет меняться */
+  cursor: pointer;
 }
 
-/* Контейнер кнопок — фиксирован внизу экрана */
 #sleep-buttons {
   position: fixed;
-  bottom: 40px;                  /* расстояние от низа экрана */
+  bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  display: none;                 /* по умолчанию скрыт */
-  gap: 60px;                     /* расстояние между кнопками */
-  z-index: 65;                   /* выше всего в игре */
+  display: none;
+  gap: 60px;
+  z-index: 65;
   pointer-events: auto;
 }
 
-/* Сами кнопки — меньше */
 #sleep-restart-btn,
 #sleep-skip-btn {
-  width: 300px;                  /* ← размер кнопок — подбери под свои изображения */
+  width: 300px;
   height: auto;
   cursor: pointer;
   transition: transform 0.15s ease, opacity 0.2s ease;
@@ -428,7 +415,6 @@ body {
   opacity: 0.9;
 }
 
-/* Показываем кнопки только при проигрыше */
 #sleep-fail[style*="display: flex"] ~ #sleep-buttons,
 #sleep-fail:not([style*="display: none"]) ~ #sleep-buttons {
   display: flex;
@@ -461,10 +447,10 @@ body {
 
 #sleep-instruction {
   position: fixed;
-  bottom: 60px;                    /* расстояние от нижнего края экрана — подбери 40–80px */
-  left: 0;                         /* ← убираем left:50% */
-  right: 0;                        /* ← растягиваем на всю ширину экрана */
-  text-align: center;              /* ← центрируем текст внутри блока */
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  text-align: center;
   font-size: 22px;
   font-weight: bold;
   color: #ffffff;
@@ -476,7 +462,6 @@ body {
   white-space: nowrap;
 }
 
-/* При старте игры показываем */
 #sleep-game-overlay.active #sleep-instruction,
 #sleep-game-overlay[style*="display: block"] #sleep-instruction {
   opacity: 1;
@@ -504,18 +489,15 @@ body {
   }
 }
 
-/* Анимация пульсации при нажатии пробела */
 @keyframes pulse-text {
   0%   { transform: scale(1); }
-  40%  { transform: scale(1.12); }   /* чуть больше, но не слишком агрессивно */
+  40%  { transform: scale(1.12); }
   100% { transform: scale(1); }
 }
 
 #sleep-instruction.pulse {
   animation: pulse-text 0.4s ease-out forwards;
 }
-
-/* ================= DOGS GAME ================= */
 
 #dogs-game-overlay {
   position: fixed;
@@ -531,7 +513,7 @@ body {
 
 .dog-zone {
   position: absolute;
-  width: 350px;    /* РЕГУЛИРУЙ РАЗМЕР */
+  width: 350px;
   height: 350px;
   pointer-events: auto;
   cursor: pointer;
@@ -559,13 +541,11 @@ body {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: rgba(255, 0, 0, 0.35);  /* ← регулируешь прозрачность */
+  background: rgba(255, 0, 0, 0.35);
   transform: scale(1);
   transform-origin: center;
   transition: transform 0.1s linear;
 }
-
-/* ---- ПРОИГРЫШ ---- */
 
 #dogs-fail {
   position: absolute;
@@ -599,7 +579,6 @@ body {
   transform: scale(1.1);
 }
 
-/* Надпись для dogs-игры — полностью аналогично sleep */
 #dogs-instruction {
   position: fixed;
   bottom: 60px;
@@ -617,7 +596,6 @@ body {
   white-space: nowrap;
 }
 
-/* Пульсация при клике (такая же, как в sleep) */
 @keyframes pulse-text {
   0%   { transform: scale(1); }
   40%  { transform: scale(1.12); }
@@ -628,10 +606,9 @@ body {
   animation: pulse-text 0.4s ease-out forwards;
 }
 
-/* Анимация hover на кнопках dogs (аналогично sleep) */
 #dogs-restart-btn,
 #dogs-skip-btn {
-  width: 300px;                  /* можно уменьшить до 240–280px, если хочешь меньше */
+  width: 300px;
   height: auto;
   cursor: pointer;
   transition: transform 0.15s ease, opacity 0.2s ease;
@@ -641,4 +618,83 @@ body {
 #dogs-skip-btn:hover {
   transform: scale(1.1);
   opacity: 0.9;
+}
+
+#evidence-game-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 55;
+  pointer-events: none;
+}
+
+#evidence-game-overlay.active {
+  display: block;
+}
+
+#evidence-instruction {
+  position: fixed;
+  bottom: 60px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 0 12px #000, 0 0 20px #000;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  white-space: nowrap;
+}
+
+#evidence-instruction.pulse {
+  animation: pulse-text 0.4s ease-out forwards;
+}
+
+.evidence-hotspot {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 0, 0.4);
+  border: 2px solid rgba(255, 255, 0, 0.8);
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+  animation: pulse-hotspot 2s infinite ease-in-out;
+  z-index: 58;
+}
+
+@keyframes pulse-hotspot {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.15); opacity: 0.9; }
+}
+
+#evidence-desc {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 62;
+  pointer-events: auto;
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  padding: 40px;
+}
+
+#evidence-desc-text {
+  max-width: 80%;
+  line-height: 1.5;
+  margin-bottom: 30px;
+}
+
+#evidence-desc-continue {
+  font-size: 18px;
+  opacity: 0.7;
+  margin-top: 0;
 }
