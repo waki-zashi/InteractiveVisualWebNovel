@@ -68,9 +68,7 @@ function renderScene(sceneId, fromHistory = false) {
   state.introTimeout = null;
 
   textEl.innerHTML = "";
-  if (dialogueTextEl) {
-    dialogueTextEl.innerHTML = "";
-  }
+  if (dialogueTextEl) dialogueTextEl.innerHTML = "";
 
   const textBox = document.getElementById("text-box");
   const dialogueBox = document.getElementById("dialogue-box");
@@ -89,23 +87,35 @@ function renderScene(sceneId, fromHistory = false) {
 
   const introOverlay = document.getElementById("intro-overlay");
 
-  // ✅ ВАЖНО: загружаем фон ДО начала сцены
+  /* ===============================
+     ✅ НОВАЯ ПРАВИЛЬНАЯ ЗАГРУЗКА ФОНА
+     =============================== */
+
+  fadeEl.classList.add("active");              // полностью чёрный экран
+  backgroundEl.style.backgroundImage = "none"; // убираем прошлый фон
+
   const bgImage = new Image();
   bgImage.src = scene.background;
 
   bgImage.onload = () => {
     backgroundEl.style.backgroundImage = `url(${scene.background})`;
 
-    // Только после полной загрузки убираем fade
-    fadeEl.classList.add("active");
-    setTimeout(() => fadeEl.classList.remove("active"), 50);
+    // плавный fade-in из темноты
+    setTimeout(() => {
+      fadeEl.classList.remove("active");
+    }, 50);
   };
 
   bgImage.onerror = () => {
     backgroundEl.style.backgroundImage = `url(${scene.background})`;
-    fadeEl.classList.add("active");
-    setTimeout(() => fadeEl.classList.remove("active"), 50);
+    setTimeout(() => {
+      fadeEl.classList.remove("active");
+    }, 50);
   };
+
+  /* ===============================
+     Далее твоя оригинальная логика
+     =============================== */
 
   if (scene.introImage) {
     if (textBox) {
@@ -152,6 +162,7 @@ function renderScene(sceneId, fromHistory = false) {
 
     bgImage.onload = () => {
       backgroundEl.style.backgroundImage = `url(${scene.background})`;
+      setTimeout(() => fadeEl.classList.remove("active"), 50);
       startSleepGame();
     };
 
@@ -169,6 +180,7 @@ function renderScene(sceneId, fromHistory = false) {
 
     bgImage.onload = () => {
       backgroundEl.style.backgroundImage = `url(${scene.background})`;
+      setTimeout(() => fadeEl.classList.remove("active"), 50);
       startEvidenceGame(scene);
     };
 
