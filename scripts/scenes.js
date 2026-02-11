@@ -1411,6 +1411,7 @@ export const scenes = {
   scene_70: {
     id: "scene_70",
     background: "assets/backgrounds/Suvorik_cinema_game.png",
+    minigame: "sleep",
     text: [
       [
         "Вот и показались титры, а я почти и не заметил, как ты чуть не уснула. И вот снова мы будем обсуждать с тобой фильм и сцены, которые ты видела только мельком."

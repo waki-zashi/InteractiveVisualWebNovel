@@ -136,6 +136,17 @@ function renderScene(sceneId, fromHistory = false) {
     return;
   }
 
+  if (scene.minigame === "sleep" && !state.sleepGameCompleted) {
+    // Скрываем обычные текстовые боксы, чтобы они не мешали
+    const textBox = document.getElementById("text-box");
+    const dialogueBox = document.getElementById("dialogue-box");
+    if (textBox) textBox.classList.remove("visible");
+    if (dialogueBox) dialogueBox.classList.remove("visible");
+
+    startSleepGame();
+    return;  // ← важно! не показываем текст, пока игра не закончена
+  }
+
   if (textBox) {
     textBox.style.display = "block";
     textBox.classList.remove("visible");
@@ -172,6 +183,7 @@ function skipIntro() {
 
 function nextStep() {
   if (state.isTransitioning) return;
+  if (state.sleepGame.active) return;
 
   const scene = scenes[state.currentScene];
   if (!scene) return;
@@ -289,7 +301,6 @@ function revealChoices(scene) {
 
   enableMouseChoice(scene);
 }
-
 
 function enableMouseChoice(scene) {
   function onMouseMove(e) {
@@ -463,6 +474,116 @@ function stopItemStars() {
   }
 }
 
+function startSleepGame() {
+  const game = state.sleepGame;
+
+  game.active = true;
+  game.darkness = 0;
+  game.speed = 0.005;
+  game.elapsed = 0;
+
+  const overlay = document.getElementById("sleep-game-overlay");
+  overlay.style.display = "block";
+
+  const instruction = document.getElementById("sleep-instruction");
+  instruction.style.opacity = "1";
+  instruction.style.pointerEvents = "none"; // на всякий случай
+  document.getElementById("sleep-buttons").style.display = "none";
+
+  loopSleepGame();
+}
+
+function loopSleepGame(timestamp) {
+  const game = state.sleepGame;
+  if (!game.active) return;
+
+  game.elapsed += 16;
+  game.darkness += game.speed;
+
+  updateSleepVisuals();
+
+  // ускорение
+  game.speed += 0.00002;
+
+  if (game.darkness >= 1) {
+    loseSleepGame();
+    return;
+  }
+
+  if (game.elapsed >= game.duration) {
+    winSleepGame();
+    return;
+  }
+
+  game.raf = requestAnimationFrame(loopSleepGame);
+}
+
+function updateSleepVisuals() {
+  const game = state.sleepGame;
+
+  const darkness = document.getElementById("sleep-darkness");
+  darkness.style.opacity = game.darkness;
+
+  if (game.darkness >= 0.5) {
+    const progress = (game.darkness - 0.5) * 2;
+
+    document.getElementById("sleep-eyelid-top")
+      .style.transform = `translateY(${(-100 + progress * 100)}%)`;
+
+    document.getElementById("sleep-eyelid-bottom")
+      .style.transform = `translateY(${(100 - progress * 100)}%)`;
+  }
+}
+
+function loseSleepGame() {
+  const game = state.sleepGame;
+  game.active = false;
+  cancelAnimationFrame(game.raf);
+
+  game.attempts++;
+
+  const fail = document.getElementById("sleep-fail");
+  fail.style.display = "flex";
+
+  // Показываем кнопки внизу
+  document.getElementById("sleep-buttons").style.display = "flex";
+
+  // скрываем инструкцию
+  document.getElementById("sleep-instruction").style.opacity = "0";
+
+  // Если уже 2+ попытки — можно оставить только "Пропустить", но пока оставим обе
+}
+
+function winSleepGame() {
+  const game = state.sleepGame;
+  game.active = false;
+  cancelAnimationFrame(game.raf);
+
+  state.sleepGameCompleted = true;
+
+  closeSleepGame();
+
+  // после победы запускаем обычный текст сцены
+  nextStep();
+}
+
+function closeSleepGame() {
+  const overlay = document.getElementById("sleep-game-overlay");
+  overlay.style.display = "none";
+
+  const instruction = document.getElementById("sleep-instruction");
+  instruction.style.opacity = "0";   // ← скрываем
+
+  state.sleepGame.darkness = 0;
+  document.getElementById("sleep-darkness").style.opacity = 0;
+  document.getElementById("sleep-eyelid-top").style.transform = "translateY(-100%)";
+  document.getElementById("sleep-eyelid-bottom").style.transform = "translateY(100%)";
+
+  document.getElementById("sleep-fail").style.display = "none";
+  document.getElementById("sleep-buttons").style.display = "none";
+  document.getElementById("sleep-fail").style.display = "none";
+}
+
 function renderEnding(scene) {
   backgroundEl.style.backgroundImage = `url(${scene.background})`;
   backgroundEl.style.backgroundColor = "";
@@ -498,7 +619,6 @@ function renderEnding(scene) {
   overlay.classList.add("active");
 }
 
-
 function restartGame() {
   // Invalidate all pending async navigation
   state.currentScene = null;
@@ -518,6 +638,9 @@ function restartGame() {
   state.transitionTimeout = null;
   state.isTransitioning = false;
 
+  state.sleepGameCompleted = false;
+  state.sleepGame.attempts = 0;
+
   // Turn off particles and mouse choice
   stopParticles();
 
@@ -535,13 +658,21 @@ function restartGame() {
 
 
 document.addEventListener("keydown", (e) => {
-  const endingOverlay = document.getElementById("ending-overlay");
-  if (endingOverlay?.classList.contains("active")) {
-    return;
+  if (state.sleepGame.active) {
+    if (e.key === " ") {
+      e.preventDefault();
+      state.sleepGame.darkness = Math.max(0, state.sleepGame.darkness - 0.2);
+      return;
+    }
+    // другие клавиши можно блокировать тоже
+    return; // блокируем все остальные клавиши во время игры
   }
 
+  const endingOverlay = document.getElementById("ending-overlay");
+  if (endingOverlay?.classList.contains("active")) return;
+
   if (e.key === " " || e.key === "Enter") {
-    e.preventDefault();  // <– stop focused button from being “clicked”
+    e.preventDefault();
 
     const introOverlay = document.getElementById("intro-overlay");
     if (introOverlay?.classList.contains("active")) {
@@ -556,6 +687,19 @@ document.addEventListener("keydown", (e) => {
     goBack();
   }
 });
+
+
+document.getElementById("sleep-restart-btn").onclick = () => {
+  document.getElementById("sleep-fail").style.display = "none";
+  startSleepGame();
+};
+
+
+document.getElementById("sleep-skip-btn").onclick = () => {
+  state.sleepGameCompleted = true;
+  closeSleepGame();
+  nextStep();
+};
 
 // restartGame();
 transitionToScene(state.currentScene);

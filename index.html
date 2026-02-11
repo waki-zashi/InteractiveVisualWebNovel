@@ -40,6 +40,26 @@
   <div id="choice-gradient" class="hidden"></div>
   <div id="fade-layer"></div>
 
+  <div id="sleep-game-overlay">
+    <div id="sleep-instruction">Нажимай ПРОБЕЛ, чтобы не уснуть</div>
+
+    <div id="sleep-darkness"></div>
+
+    <div id="sleep-eyelid-top"></div>
+    <div id="sleep-eyelid-bottom"></div>
+
+    <!-- Панель проигрыша теперь только фон/текст, без кнопок -->
+    <div id="sleep-fail">
+      <div>Ты уснула...</div>  <!-- можно добавить текст или картинку -->
+    </div>
+
+    <!-- Новый контейнер для кнопок внизу экрана -->
+    <div id="sleep-buttons">
+      <img src="assets/ui/restart.png" id="sleep-restart-btn" alt="Начать заново" />
+      <img src="assets/ui/skip.png"   id="sleep-skip-btn"   alt="Пропустить" />
+    </div>
+  </div>
+
   <div id="item-overlay">
     <div class="item-container">
       <img class="item-aura" src="assets/items/aura.png" />
@@ -47,7 +67,6 @@
       <canvas id="item-stars"></canvas>
     </div>
   </div>
-
 
   <div id="ending-overlay">
     <div id="ending-frame">

@@ -367,6 +367,125 @@ body {
   z-index: 0;
 }
 
+#sleep-game-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+  z-index: 50;
+}
+
+#sleep-game-overlay > * {
+  pointer-events: auto;           /* ← ВСЕ дети оверлея теперь кликабельны */
+}
+
+#sleep-darkness,
+#sleep-eyelid-top,
+#sleep-eyelid-bottom {
+  pointer-events: none;
+}
+
+#sleep-fail,
+#sleep-fail img,
+#sleep-restart-btn,
+#sleep-skip-btn {
+  pointer-events: auto;
+  cursor: pointer;                /* ← курсор теперь будет меняться */
+}
+
+/* Контейнер кнопок — фиксирован внизу экрана */
+#sleep-buttons {
+  position: fixed;
+  bottom: 40px;                  /* расстояние от низа экрана */
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;                 /* по умолчанию скрыт */
+  gap: 60px;                     /* расстояние между кнопками */
+  z-index: 65;                   /* выше всего в игре */
+  pointer-events: auto;
+}
+
+/* Сами кнопки — меньше */
+#sleep-restart-btn,
+#sleep-skip-btn {
+  width: 300px;                  /* ← размер кнопок — подбери под свои изображения */
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+#sleep-restart-btn:hover,
+#sleep-skip-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.9;
+}
+
+/* Показываем кнопки только при проигрыше */
+#sleep-fail[style*="display: flex"] ~ #sleep-buttons,
+#sleep-fail:not([style*="display: none"]) ~ #sleep-buttons {
+  display: flex;
+}
+
+#sleep-darkness {
+  position: absolute;
+  inset: 0;
+  background: black;
+  opacity: 0;
+  transition: opacity 0.1s linear;
+}
+
+#sleep-eyelid-top,
+#sleep-eyelid-bottom {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background: black;
+  transform: translateY(-100%);
+  transition: transform 0.1s linear;
+}
+
+#sleep-eyelid-bottom {
+  bottom: 0;
+  top: auto;
+  transform: translateY(100%);
+}
+
+#sleep-instruction {
+  position: fixed;               /* ← меняем на fixed, чтобы не зависеть от overlay */
+  bottom: 60px;                  /* чуть выше, чтобы не упиралась в край */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 0 0 12px #000, 0 0 20px #000;
+  z-index: 60;                   /* выше всех элементов игры (darkness=0, eyelids ~10) */
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  white-space: nowrap;
+}
+
+/* При старте игры показываем */
+#sleep-game-overlay.active #sleep-instruction,
+#sleep-game-overlay[style*="display: block"] #sleep-instruction {
+  opacity: 1;
+}
+
+#sleep-fail {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+#sleep-fail img {
+  cursor: pointer;
+}
+
 @keyframes aura-rotate {
   from {
     transform: translate(-50%, -50%) rotate(0deg);
